@@ -8,6 +8,8 @@ This repository provides a guide for deploying Kubeflow on a self-managed Kubern
 2. Calico networking is assumed to be installed and configured on the master node for cluster networking.  
 3. The necessary GPU drivers need to be pre-installed on the worker nodes.  
 4. CRI-O is assumed to be installed on the master node as the container runtime engine. If Docker is used on the master node, consult the documentation for the appropriate configuration steps for deploying Kubeflow with Docker.  
+5. The Kubernetes cluster already has persistent storage provisioned. This storage will be used by Kubeflow and your machine learning workloads. The specific storage solution (e.g., local storage, network-attached storage) will depend on the environment and needs.  
+6. The default storage class for persistent volumes in the Kubernetes cluster is configured. Kubeflow will leverage this storage class for its persistent volume claims.  
 
 |  Package  | Version |
 |---|---|
