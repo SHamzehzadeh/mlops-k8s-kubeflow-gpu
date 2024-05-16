@@ -1,0 +1,45 @@
+name: Deploy Mlflow on K8s
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      KUBECONFIG: ${{ secrets.KUBECONFIG }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.8.3
+
+      - name: Initialize Terraform
+        working-directory: mlflow/terraform-config
+        run: terraform init
+
+      - name: Plan Terraform
+        working-directory: mlflow/terraform-config
+        run: terraform plan -out=tfplan
+
+      - name: Apply Terraform
+        working-directory: mlflow/terraform-config
+        run: terraform apply -auto-approve tfplan
+      
+      - name: Install kubectl
+        run: |
+          sudo apt-get update && sudo apt-get install -y apt-transport-https
+          sudo apt-get install -y kubectl
+    
+      - name: Configure kubectl
+        run: echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+
+      - name: Apply Kubernetes Manifests
+        run: kubectl apply -f mlflow/virtualService.yaml
