@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mlflow-pvc
-  namespace: mlflow
+  name: postgres-pvc
+  namespace: postgres
 spec:
   accessModes:
     - ReadWriteOnce
