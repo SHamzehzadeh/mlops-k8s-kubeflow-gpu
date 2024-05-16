@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mlflow-config
+data:
+  backend-store-uri: sqlite:///mlflow.db
+  artifact-root: /mlflow/artifacts
