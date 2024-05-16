@@ -15,31 +15,45 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        if: failure()
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.8.3
+        if: failure()
 
       - name: Initialize Terraform
         working-directory: mlflow/terraform-config
         run: terraform init
+        if: failure()
 
       - name: Plan Terraform
         working-directory: mlflow/terraform-config
         run: terraform plan -out=tfplan
+        if: failure()
 
       - name: Apply Terraform
         working-directory: mlflow/terraform-config
         run: terraform apply -auto-approve tfplan
-      
+        if: failure()
+
       - name: Install kubectl
         run: |
-          sudo apt-get update && sudo apt-get install -y apt-transport-https
+          sudo apt-get update && sudo apt-get install -y apt-transport-https ca-certificates curl
+          sudo mkdir -p -m 755 /etc/apt/keyrings
+          curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+          sudo chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+          echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+          sudo chmod 644 /etc/apt/sources.list.d/kubernetes.list
+          sudo apt-get update
           sudo apt-get install -y kubectl
-    
+        if: failure()
+
       - name: Configure kubectl
         run: echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
+        if: failure()
 
       - name: Apply Kubernetes Manifests
         run: kubectl apply -f mlflow/virtualService.yaml
+        if: failure()
